@@ -7,10 +7,10 @@ Every demo is constructed as an independent CMake project, which can be copied
 and customized, but they can also be built together from the top-level directory.
 
 ## Demos
-* hello - a simple "Hello, world!" demo, running a JS script embedded in C++.
-* runner - runs a JS script from a file.
-* host-functions - demonstrates registering host functions into the global object.
-* hf-runner - demonstrate registering host functions from dynamically loaded shared libraries.
+* [hello](./hello) - a simple "Hello, world!" demo, running a JS script embedded in C++.
+* [runner](./runner) - runs a JS script from a file.
+* [host-functions](./host-functions) - demonstrates registering host functions into the global object.
+* [hf-runner](./hf-runner) - demonstrate registering host functions from dynamically loaded shared libraries.
 
 ## Building
 
