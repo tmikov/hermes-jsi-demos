@@ -16,13 +16,13 @@ R"((function() {
         curTime = tm;
         if (tasks.length && tasks[0].deadline <= tm) {
             var task = tasks.shift();
-            task.fn.apply(null, task.args);
+            task.fn.apply(undefined, task.args);
         }
     }
 
     function setTimeout(fn, ms = 0, ...args) {
         var id = nextTaskID++;
-        var task = {id: nextTaskID++, fn, deadline: curTime + Math.max(0, ms | 0), args};
+        var task = {id, fn, deadline: curTime + Math.max(0, ms | 0), args};
         // Insert the task in the sorted list.
         var i = 0;
         for (i = 0; i < tasks.length; ++i) {
