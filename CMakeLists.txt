@@ -9,7 +9,8 @@ add_subdirectory(hello)
 add_subdirectory(runner)
 add_subdirectory(host-functions)
 add_subdirectory(hf-runner)
+add_subdirectory(evloop)
 
 # A target to build all demos
 add_custom_target(demos
-        DEPENDS hello runner host-functions hf-runner)
+        DEPENDS hello runner host-functions hf-runner evloop)

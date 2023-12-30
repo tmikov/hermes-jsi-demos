@@ -7,10 +7,13 @@ Every demo is constructed as an independent CMake project, which can be copied
 and customized, but they can also be built together from the top-level directory.
 
 ## Demos
+
+In order of increasing complexity:
 * [hello](./hello) - a simple "Hello, world!" demo, running a JS script embedded in C++.
 * [runner](./runner) - runs a JS script from a file.
 * [host-functions](./host-functions) - demonstrates registering host functions into the global object.
 * [hf-runner](./hf-runner) - demonstrate registering host functions from dynamically loaded shared libraries.
+* [evloop](./evloop) - demonstrates a simple event loop, which enables setTimeout() and setImmediate(), plus WeakRef.
 
 ## Building
 
@@ -43,7 +46,7 @@ cmake -G Ninja -DHERMES_BUILD_APPLE_FRAMEWORK=OFF -DCMAKE_BUILD_TYPE=Debug <path
 ninja
 ```
 
-You can use a different build type by using `-DCMAKE_BUILD_TYPE=Release`.
+You can change the build type by specifying `-DCMAKE_BUILD_TYPE=Release`.
 `-DHERMES_BUILD_APPLE_FRAMEWORK=OFF` is important on MacOS, so make sure you don't forget it.
 
 ### Build the demos
