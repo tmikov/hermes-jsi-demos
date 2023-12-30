@@ -11,7 +11,7 @@
 
 #include <hermes/hermes.h>
 
-#include "add.h"
+#include "natives.h"
 
 /// Read the contents of a file into a string.
 static std::optional<std::string> readFile(const char *path) {

@@ -37,5 +37,5 @@ link_directories("${HERMES_BUILD_DIR}/jsi")
 
 add_executable(host-functions
         host-functions.cpp
-        natives.cpp add.h)
+        natives.cpp natives.h)
 target_link_libraries(host-functions hermes jsi)

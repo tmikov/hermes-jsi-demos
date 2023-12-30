@@ -4,7 +4,7 @@
  * or at <http://unlicense.org/>
  */
 
-#include "add.h"
+#include "natives.h"
 
 #include <iostream>
 
@@ -13,12 +13,14 @@ using namespace facebook;
 /// A very complicated function that adds all its arguments, which must be
 /// numbers, together.
 static jsi::Value hostAdd(
-    jsi::Runtime &,
+    jsi::Runtime &rt,
     const jsi::Value &,
     const jsi::Value *args,
     size_t count) {
   double sum = 0;
   for (size_t i = 0; i < count; ++i) {
+    if (!args[i].isNumber())
+      throw jsi::JSError(rt, "Argument must be a number");
     sum += args[i].asNumber();
   }
   return sum;
