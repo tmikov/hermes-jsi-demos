@@ -9,6 +9,9 @@ embedded, to test native modules on a desktop or in CI in seconds, or as a start
 
 Every example is an independent CMake project you can copy out and adapt; they also build and test together.
 
+New to JSI? The [unofficial JSI docs](https://incubator.callstack.com/unofficial-jsi-docs/index.html) (Callstack
+Incubator) explain the API these examples use: runtimes, values, host functions and host objects.
+
 ## Quick start
 
 ```sh
@@ -85,5 +88,6 @@ public-domain notice. Hermes is fetched at build time, not copied into this repo
   come from there.
 - **Hermes**: [facebook/hermes](https://github.com/facebook/hermes) (MIT, Meta Platforms, Inc. and affiliates): the
   engine, its JSI API, and its Node-API implementation (`API/napi`, on the `static_h` branch).
-- **JSI**: the JavaScript Interface from [React Native](https://github.com/facebook/react-native) (MIT), as vendored in Hermes.
+- **JSI**: the JavaScript Interface from [React Native](https://github.com/facebook/react-native) (MIT), as vendored in Hermes;
+  documented in the [unofficial JSI docs](https://incubator.callstack.com/unofficial-jsi-docs/index.html) by Callstack Incubator.
 - **Node-API**: the [Node.js](https://github.com/nodejs/node) ABI-stable addon API (MIT), whose headers Hermes vendors.
