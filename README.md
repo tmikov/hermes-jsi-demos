@@ -66,7 +66,7 @@ reported to the GC, async work and thread-safe functions need an event loop from
 ## Prebuilt Hermes
 
 The [prebuilt workflow](.github/workflows/release.yml) packages the pinned Hermes for Linux x64, Linux arm64 and macOS
-arm64: headers (JSI, Hermes, Node-API), the shared `libhermes`, the static libraries a Node-API host links, the
+arm64: headers (JSI, Hermes, Node-API), the shared runtime (`libhermesvm`), the static libraries a Node-API host links, the
 `hermes` and `hermesc` tools, Hermes' license and the exact commit, with a SHA-256 checksum. Releases are published
 under [Releases](https://github.com/qalqi/headless-hermes-jsi-node-api/releases).
 

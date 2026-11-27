@@ -46,7 +46,7 @@ jobs:
       - name: Check the archive unpacks and the demos pass on this Hermes build
         run: |
           mkdir -p dist/check && tar -xzf dist/*.tar.gz -C dist/check
-          ls dist/check/*/include/jsi/jsi.h dist/check/*/include/hermes/napi/node_api.h dist/check/*/lib/libhermes.*
+          ls dist/check/*/include/jsi/jsi.h dist/check/*/include/hermes/napi/node_api.h dist/check/*/lib/libhermes*
           scripts/build.sh
           scripts/test.sh
 

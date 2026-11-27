@@ -26,9 +26,10 @@ cp "$src"/API/napi/hermes_napi.h "$out/include/napi/"
 [ -f "$src/API/napi/hermes_napi_compile.h" ] && cp "$src/API/napi/hermes_napi_compile.h" "$out/include/napi/"
 
 # Libraries: the shared JSI runtime and every static library the build produced (the Node-API host links these).
+# libhermesvm on Hermes' static_h branch (libhermes on older Hermes).
 found_shared=0
-while IFS= read -r f; do cp -P "$f" "$out/lib/"; found_shared=1; done < <(find "$build" -name "libhermes.$so*" -not -path '*/CMakeFiles/*')
-[ "$found_shared" = 1 ] || { echo "libhermes.$so not found under $build" >&2; exit 1; }
+while IFS= read -r f; do cp -P "$f" "$out/lib/"; found_shared=1; done < <(find "$build" \( -name "libhermesvm.$so*" -o -name "libhermes.$so*" \) -not -path '*/CMakeFiles/*')
+[ "$found_shared" = 1 ] || { echo "neither libhermesvm.$so nor libhermes.$so found under $build" >&2; exit 1; }
 find "$build" -name '*.a' -not -path '*/CMakeFiles/*' -exec cp {} "$out/lib/" \;
 
 # Tools.

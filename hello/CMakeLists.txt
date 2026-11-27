@@ -32,8 +32,11 @@ include_directories("${HERMES_SRC_DIR}/API/jsi")
 include_directories("${HERMES_SRC_DIR}/public")
 
 # Add Hermes library directories
-link_directories("${HERMES_BUILD_DIR}/API/hermes")
+# The Hermes runtime with JSI: libhermesvm in build/lib on Hermes' static_h branch, libhermes in build/API/hermes
+# on older Hermes.
+find_library(HERMES_RUNTIME_LIB NAMES hermesvm hermes
+             PATHS "${HERMES_BUILD_DIR}/lib" "${HERMES_BUILD_DIR}/API/hermes" NO_DEFAULT_PATH REQUIRED)
 link_directories("${HERMES_BUILD_DIR}/jsi")
 
 add_executable(hello hello.cpp)
-target_link_libraries(hello hermes jsi)
+target_link_libraries(hello ${HERMES_RUNTIME_LIB} jsi)
