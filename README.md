@@ -79,6 +79,20 @@ npm i -D @qalqi/headless-hermes
 npx hermes script.js
 ```
 
+### Versions
+
+Releases carry this repository's own version (`0.1.2`, `0.2.0`, …), not Hermes' version: the scripts, examples and
+packaging change between releases even when Hermes doesn't. Each release names the exact Hermes it was built from:
+
+| Release | Hermes (`static_h`) |
+|---|---|
+| 0.1.2 | [`d41288df`](https://github.com/facebook/hermes/commit/d41288df5432666c832abc2b2d8d53a14c1ec3de) (2026-11-26) |
+
+The same commit is in [`HERMES_COMMIT`](HERMES_COMMIT) at the release's tag, in `BUILD-INFO.txt` inside every archive,
+and in the `hermes.commit` field of the npm package's `package.json`. Release tags here are `hermes-<version>`
+(for example `hermes-0.1.2`); Hermes' own releases are tagged `hermes-v<number>` upstream and published to npm as
+[`hermes-compiler`](https://www.npmjs.com/package/hermes-compiler).
+
 ## Contributing
 
 Issues and pull requests are welcome: new examples, fixes, Windows support, other Hermes versions. Every pull request
