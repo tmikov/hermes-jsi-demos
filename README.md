@@ -42,7 +42,7 @@ and the same function written with JSI and with Node-API) are in progress.
 ## Hermes version
 
 Hermes is built from the commit in [`HERMES_COMMIT`](HERMES_COMMIT), on Hermes' `static_h` branch, which carries both
-JSI and Node-API (`API/napi`, Node-API version 10). CI rebuilds it weekly. To use a Hermes you already built, point
+JSI and Node-API (`API/napi`, Node-API version 10). CI rebuilds it weekly, and the [hermes-update](.github/workflows/hermes-update.yml) workflow proposes a newer `static_h` commit as a pull request once it builds and every example passes. To use a Hermes you already built, point
 the scripts at it:
 
 ```sh

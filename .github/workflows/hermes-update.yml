@@ -1,0 +1,70 @@
+name: hermes-update
+
+# Weekly: when Hermes' static_h branch has moved past HERMES_COMMIT, build the new commit and run every example on
+# Linux and macOS (build.yml); only if that passes, open a pull request that bumps HERMES_COMMIT. Releases stay manual.
+on:
+  schedule:
+    - cron: "0 4 * * 1" # Mondays, before the weekly build
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.tip.outputs.commit }}
+      pinned: ${{ steps.tip.outputs.pinned }}
+      update: ${{ steps.tip.outputs.update }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare static_h with HERMES_COMMIT
+        id: tip
+        run: |
+          commit="$(git ls-remote https://github.com/facebook/hermes.git refs/heads/static_h | cut -f1)"
+          pinned="$(tr -d '[:space:]' < HERMES_COMMIT)"
+          branch="hermes-update/${commit:0:12}"
+          update=false
+          if [ -z "$commit" ]; then echo "::error::could not read static_h"; exit 1; fi
+          if [ "$commit" = "$pinned" ]; then echo "HERMES_COMMIT is static_h ($pinned)"
+          elif git ls-remote --exit-code origin "refs/heads/$branch" >/dev/null; then echo "$branch already proposed"
+          else update=true; echo "static_h moved: $pinned -> $commit"; fi
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "pinned=$pinned" >> "$GITHUB_OUTPUT"
+          echo "update=$update" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: check
+    if: needs.check.outputs.update == 'true'
+    uses: ./.github/workflows/build.yml
+    with:
+      hermes_commit: ${{ needs.check.outputs.commit }}
+
+  propose:
+    needs: [check, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      COMMIT: ${{ needs.check.outputs.commit }}
+      PINNED: ${{ needs.check.outputs.pinned }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open a pull request bumping HERMES_COMMIT
+        run: |
+          branch="hermes-update/${COMMIT:0:12}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          echo "$COMMIT" > HERMES_COMMIT
+          git commit -am "Hermes: static_h ${COMMIT:0:12}"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "Hermes: static_h ${COMMIT:0:12}" \
+            --body "Hermes \`static_h\` moved: [${PINNED:0:12}...${COMMIT:0:12}](https://github.com/facebook/hermes/compare/$PINNED...$COMMIT).
+
+          Built and every example passed on Linux and macOS in [this run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID).
+          After merging, a release adds a row to the README's Versions table."
