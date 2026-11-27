@@ -1,79 +1,76 @@
 # headless-hermes-jsi-node-api
 
-Runnable examples of the [Hermes](https://github.com/facebook/hermes) JavaScript engine embedded headless, without
-React Native or any other framework, through **JSI** and through Hermes' **Node-API**. Every demo is an
-independent CMake project that can be copied and customized; they can also be built and tested together.
+[![build](https://github.com/qalqi/headless-hermes-jsi-node-api/actions/workflows/build.yml/badge.svg)](https://github.com/qalqi/headless-hermes-jsi-node-api/actions/workflows/build.yml)
 
-Quick start (builds Hermes at the commit pinned in [`HERMES_COMMIT`](HERMES_COMMIT), then every demo):
+Run the [Hermes](https://github.com/facebook/hermes) JavaScript engine headless: no React Native, no app, no device.
+Each example embeds Hermes in a small native program, through **JSI** (the C++ API React Native uses) or through
+Hermes' **Node-API** (the ABI-stable C API Node.js addons are written against). Use them to learn how Hermes is
+embedded, to test native modules on a desktop or in CI in seconds, or as a starting point for your own host.
+
+Every example is an independent CMake project you can copy out and adapt; they also build and test together.
+
+## Quick start
 
 ```sh
-scripts/build.sh
-scripts/test.sh
+git clone https://github.com/qalqi/headless-hermes-jsi-node-api.git
+cd headless-hermes-jsi-node-api
+scripts/build.sh   # builds Hermes at the pinned commit (first run only), then every example
+scripts/test.sh    # runs every example and checks its output
 ```
 
-## Demos
+Requirements: CMake 3.22 or later, Ninja, a C++17 compiler and git. Tested on Linux and macOS (Windows is not
+tested yet; pull requests welcome). The first build compiles Hermes and takes a while; later builds reuse it.
+
+## Examples
 
 In order of increasing complexity:
-* [hello](./hello) - a simple "Hello, world!" demo, running a JS script embedded in C++.
-* [runner](./runner) - runs a JS script from a file.
-* [host-functions](./host-functions) - demonstrates registering host functions into the global object.
-* [hf-runner](./hf-runner) - demonstrate registering host functions from dynamically loaded shared libraries.
-* [evloop](./evloop) - demonstrates a simple event loop, which enables setTimeout() and setImmediate(), plus WeakRef.
 
-## Building
+| Example | API | What it shows |
+|---|---|---|
+| [hello](./hello) | JSI | runs a script embedded in C++ |
+| [runner](./runner) | JSI | runs a script from a file, reports JS exceptions |
+| [host-functions](./host-functions) | JSI | registers C++ host functions in the global object |
+| [hf-runner](./hf-runner) | JSI | loads host functions from shared libraries given on the command line |
+| [evloop](./evloop) | JSI | a small event loop: `setTimeout`, `setImmediate`, microtasks, `WeakRef` |
 
-### Pre-requisites
+Node-API examples (a host for unmodified Node-API addons, C and napi-rs addons, async work and thread-safe functions,
+and the same function written with JSI and with Node-API) are in progress.
 
-* CMake 3.20 or later
-* Ninja
-* A C++ compiler
-* git
+## Hermes version
 
-Building and running the demos has been tested on Linux and macOS, but not on
-Windows. PRs adding support for Windows are welcome.
+Hermes is built from the commit in [`HERMES_COMMIT`](HERMES_COMMIT), on Hermes' `static_h` branch, which carries both
+JSI and Node-API (`API/napi`, Node-API version 10). CI rebuilds it weekly. To use a Hermes you already built, point
+the scripts at it:
 
-On macOS, I recommend installing XCode or the XCode command line tools, and using `brew`
-to obtain CMake and Ninja.
-
-### Build Hermes
-
-First you need to build hermes. Obtain a clean checkout of Hermes from https://github.com/facebook/hermes.git:
 ```sh
-$ git clone https://github.com/facebook/hermes.git 
+HERMES_SRC_DIR=/path/to/hermes HERMES_BUILD_DIR=/path/to/hermes-build scripts/build.sh
 ```
 
-Create a Hermes build directory somewhere, depending on your preferences, and name it according. 
-Then configure and build Hermes:
+Or build the examples by hand with CMake (`HERMES_SRC_DIR` is the Hermes checkout, `HERMES_BUILD_DIR` its build
+directory):
+
 ```sh
-mkdir hermes-debug
-cd hermes-debug
-cmake -G Ninja -DHERMES_BUILD_APPLE_FRAMEWORK=OFF -DCMAKE_BUILD_TYPE=Debug <path-to-hermes-checkout> 
-ninja
+cmake -S . -B build -G Ninja -DHERMES_SRC_DIR=<hermes-checkout> -DHERMES_BUILD_DIR=<hermes-build>
+cmake --build build --target demos
 ```
 
-You can change the build type by specifying `-DCMAKE_BUILD_TYPE=Release`.
-`-DHERMES_BUILD_APPLE_FRAMEWORK=OFF` is important on MacOS, so make sure you don't forget it.
+On macOS, build Hermes with `-DHERMES_BUILD_APPLE_FRAMEWORK=OFF` (the scripts do).
 
-### Build the demos
+Hermes' Node-API is new; its known differences from Node.js (external strings are copied, external memory is not
+reported to the GC, async work and thread-safe functions need an event loop from the host) are listed in Hermes'
+[COMPATIBILITY.md](https://github.com/facebook/hermes/blob/static_h/API/napi/COMPATIBILITY.md).
 
-All demos require two CMake defines to be set:
-* `HERMES_SRC_DIR` - the path to the Hermes checkout.
-* `HERMES_BUILD_DIR` - the path to the Hermes build directory from above.
+## Prebuilt Hermes
 
-Create a build directory for the demos in a location, depending on your preferences, and name it accordingly.
-Then configure and build the demos:
-```sh
-mkdir demos-debug
-cd demos-debug
-cmake -G Ninja -DHERMES_SRC_DIR=<path-to-hermes-checkout> \
-  -DHERMES_BUILD_DIR=<path-to-hermes-build> \
-  <path-to-demos-checkout>
-ninja demos
-```
-## Final Words
+The [prebuilt workflow](.github/workflows/release.yml) packages the pinned Hermes for Linux x64, Linux arm64 and macOS
+arm64: headers (JSI, Hermes, Node-API), the shared `libhermes`, the static libraries a Node-API host links, the
+`hermes` and `hermesc` tools, Hermes' license and the exact commit, with a SHA-256 checksum. Releases are published
+under [Releases](https://github.com/qalqi/headless-hermes-jsi-node-api/releases).
 
-This project is built for education purposes, and is not intended to be used in production.
-Questions, discussions and PRs are highly encouraged.
+## Contributing
+
+Issues and pull requests are welcome: new examples, fixes, Windows support, other Hermes versions. Every pull request
+runs the full build and every example's output check on Linux and macOS.
 
 ## License
 
@@ -84,10 +81,9 @@ public-domain notice. Hermes is fetched at build time, not copied into this repo
 
 - **Original demos**: [tmikov/hermes-jsi-demos](https://github.com/tmikov/hermes-jsi-demos) by Tzvetan Mikov,
   released into the public domain under the [Unlicense](https://github.com/tmikov/hermes-jsi-demos/blob/master/LICENSE).
-  The `hello`, `runner`, `host-functions`, `hf-runner` and `evloop` demos and the original build instructions come
-  from there.
+  The `hello`, `runner`, `host-functions`, `hf-runner` and `evloop` examples and the original build instructions
+  come from there.
 - **Hermes**: [facebook/hermes](https://github.com/facebook/hermes) (MIT, Meta Platforms, Inc. and affiliates): the
   engine, its JSI API, and its Node-API implementation (`API/napi`, on the `static_h` branch).
 - **JSI**: the JavaScript Interface from [React Native](https://github.com/facebook/react-native) (MIT), as vendored in Hermes.
 - **Node-API**: the [Node.js](https://github.com/nodejs/node) ABI-stable addon API (MIT), whose headers Hermes vendors.
-
