@@ -70,7 +70,7 @@ arm64: headers (JSI, Hermes, Node-API), the shared runtime (`libhermesvm`), the 
 `hermes` and `hermesc` tools, Hermes' license and the exact commit, with a SHA-256 checksum. Releases are published
 under [Releases](https://github.com/qalqi/headless-hermes-jsi-node-api/releases).
 
-On npm, [`@qalqi/headless-hermes`](https://www.npmjs.com/package/@qalqi/headless-hermes) installs the runtime
+From the first release on, [`@qalqi/headless-hermes`](https://www.npmjs.com/package/@qalqi/headless-hermes) on npm installs the runtime
 library, the `hermes` and `hermesc` tools and the headers for your platform (the static libraries stay in the release
 archives):
 
