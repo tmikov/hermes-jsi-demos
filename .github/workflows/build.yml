@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # weekly: the pinned Hermes still builds and every demo still passes
+
+jobs:
+  demos:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      HERMES_SRC_DIR: ${{ github.workspace }}/.hermes/src
+      HERMES_BUILD_DIR: ${{ github.workspace }}/.hermes/build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tools
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update -q && sudo apt-get install -y -q ninja-build; else brew install ninja; fi
+          cmake --version
+
+      - name: Cache the Hermes build
+        uses: actions/cache@v4
+        with:
+          path: .hermes
+          key: hermes-${{ runner.os }}-${{ hashFiles('HERMES_COMMIT', 'scripts/build-hermes.sh') }}
+
+      - name: Build Hermes (pinned in HERMES_COMMIT)
+        run: scripts/build-hermes.sh
+
+      - name: Build the demos
+        run: scripts/build.sh
+
+      - name: Run the demos and check their output
+        run: scripts/test.sh
