@@ -94,6 +94,8 @@ jobs:
         with:
           path: dist
           merge-multiple: true
+      - name: npm with trusted publishing (11.5.1 or later), pinned
+        run: npm install -g npm@11.6.2 && npm --version
       - name: Make the npm packages
         run: scripts/npm-pack.sh
       - name: Publish (platform packages first, then @qalqi/headless-hermes)

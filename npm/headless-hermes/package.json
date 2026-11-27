@@ -1,6 +1,6 @@
 {
   "name": "@qalqi/headless-hermes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Hermes JavaScript engine for headless use (no React Native): the hermes and hermesc tools, the JSI runtime library and headers (JSI, Hermes, Node-API), prebuilt per platform",
   "license": "Apache-2.0",
   "repository": { "type": "git", "url": "git+https://github.com/qalqi/headless-hermes-jsi-node-api.git" },
