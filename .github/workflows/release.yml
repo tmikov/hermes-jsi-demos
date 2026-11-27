@@ -75,3 +75,28 @@ jobs:
           gh release create "$GITHUB_REF_NAME" dist/* \
             --title "$GITHUB_REF_NAME" \
             --notes "Prebuilt Hermes (JSI and Node-API) at facebook/hermes@$commit for Linux x64, Linux arm64 and macOS arm64. Each archive has include/, lib/, bin/, LICENSE-hermes (MIT) and BUILD-INFO.txt; verify with the .sha256 files."
+
+  npm:
+    # npm trusted publishing (OIDC): no token is stored; each package records the workflow run that built it.
+    if: startsWith(github.ref, 'refs/tags/hermes-')
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Make the npm packages
+        run: scripts/npm-pack.sh
+      - name: Publish (platform packages first, then @qalqi/headless-hermes)
+        run: |
+          for d in npm/out/headless-hermes-*/; do npm publish "$d" --provenance --access public; done
+          npm publish npm/out/headless-hermes --provenance --access public
