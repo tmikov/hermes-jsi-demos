@@ -1,0 +1,77 @@
+name: prebuilt
+
+# Prebuilt Hermes (JSI + Node-API) per platform. Every run uploads the archives as workflow artifacts; pushing a tag
+# `hermes-*` also publishes them as a GitHub Release.
+on:
+  workflow_dispatch:
+  push:
+    tags: ["hermes-*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, platform: linux-x64 }
+          - { os: ubuntu-24.04-arm, platform: linux-arm64 }
+          - { os: macos-latest, platform: macos-arm64 }
+    runs-on: ${{ matrix.os }}
+    env:
+      HERMES_SRC_DIR: ${{ github.workspace }}/.hermes/src
+      HERMES_BUILD_DIR: ${{ github.workspace }}/.hermes/build
+      BUILD_TYPE: Release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tools
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update -q && sudo apt-get install -y -q ninja-build; else brew install ninja; fi
+
+      - name: Cache the Hermes build
+        uses: actions/cache@v4
+        with:
+          path: .hermes
+          key: hermes-${{ matrix.platform }}-${{ hashFiles('HERMES_COMMIT', 'scripts/build-hermes.sh') }}
+
+      - name: Build Hermes
+        run: scripts/build-hermes.sh
+
+      - name: Package
+        run: scripts/package.sh
+
+      - name: Check the archive unpacks and the demos pass on this Hermes build
+        run: |
+          mkdir -p dist/check && tar -xzf dist/*.tar.gz -C dist/check
+          ls dist/check/*/include/jsi/jsi.h dist/check/*/include/hermes/napi/node_api.h dist/check/*/lib/libhermes.*
+          scripts/build.sh
+          scripts/test.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hermes-${{ matrix.platform }}
+          path: |
+            dist/*.tar.gz
+            dist/*.sha256
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/hermes-')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          commit="$(tr -d '[:space:]' < HERMES_COMMIT)"
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --notes "Prebuilt Hermes (JSI and Node-API) at facebook/hermes@$commit for Linux x64, Linux arm64 and macOS arm64. Each archive has include/, lib/, bin/, LICENSE-hermes (MIT) and BUILD-INFO.txt; verify with the .sha256 files."
