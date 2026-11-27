@@ -16,6 +16,10 @@ hermes.libDir();     // libhermesvm
 hermes.buildInfo();  // the exact Hermes commit
 ```
 
+Only need `hermesc` to compile bytecode for a React Native build? That's Meta's
+[`hermes-compiler`](https://www.npmjs.com/package/hermes-compiler). This package is for running and embedding Hermes
+outside React Native.
+
 Examples, the build scripts and the static libraries for linking your own Node-API host:
 [headless-hermes-jsi-node-api](https://github.com/qalqi/headless-hermes-jsi-node-api). Packaging is Apache-2.0;
 Hermes is MIT (LICENSE-hermes in each platform package).
